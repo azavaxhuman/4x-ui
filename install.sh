@@ -82,33 +82,12 @@ gen_random_string() {
 }
 
 config_after_install() {
-    # Check if x-ui binary exists and is executable
-    if [ ! -f "/usr/local/x-ui/x-ui" ] || [ ! -x "/usr/local/x-ui/x-ui" ]; then
-        echo -e "${red}Error: x-ui binary not found or not executable${plain}"
-        return 1
-    fi
-    
-    # Try to get current settings, with error handling
-    local existing_hasDefaultCredential=""
-    local existing_webBasePath=""
-    local existing_port=""
-    
-    # Get server IP
+    local existing_hasDefaultCredential=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'hasDefaultCredential: .+' | awk '{print $2}')
+    local existing_webBasePath=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'webBasePath: .+' | awk '{print $2}')
+    local existing_port=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'port: .+' | awk '{print $2}')
     local server_ip=$(curl -s --max-time 3 https://api.ipify.org)
     if [ -z "$server_ip" ]; then
         server_ip=$(curl -s --max-time 3 https://4.ident.me)
-    fi
-    
-    # Try to get current settings
-    if /usr/local/x-ui/x-ui setting -show true >/dev/null 2>&1; then
-        existing_hasDefaultCredential=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'hasDefaultCredential: .+' | awk '{print $2}' 2>/dev/null || echo "")
-        existing_webBasePath=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'webBasePath: .+' | awk '{print $2}' 2>/dev/null || echo "")
-        existing_port=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'port: .+' | awk '{print $2}' 2>/dev/null || echo "")
-    else
-        echo -e "${yellow}Warning: Could not read current settings, will use defaults${plain}"
-        existing_hasDefaultCredential="true"
-        existing_webBasePath=""
-        existing_port="54321"
     fi
 
     if [[ ${#existing_webBasePath} -lt 4 ]]; then
@@ -126,29 +105,21 @@ config_after_install() {
                 echo -e "${yellow}Generated random port: ${config_port}${plain}"
             fi
 
-            if /usr/local/x-ui/x-ui setting -username "${config_username}" -password "${config_password}" -port "${config_port}" -webBasePath "${config_webBasePath}" >/dev/null 2>&1; then
-                echo -e "This is a fresh installation, generating random login info for security concerns:"
-                echo -e "###############################################"
-                echo -e "${green}Username: ${config_username}${plain}"
-                echo -e "${green}Password: ${config_password}${plain}"
-                echo -e "${green}Port: ${config_port}${plain}"
-                echo -e "${green}WebBasePath: ${config_webBasePath}${plain}"
-                echo -e "${green}Access URL: http://${server_ip}:${config_port}/${config_webBasePath}${plain}"
-                echo -e "###############################################"
-            else
-                echo -e "${red}Error: Failed to configure x-ui settings${plain}"
-                return 1
-            fi
+            /usr/local/x-ui/x-ui setting -username "${config_username}" -password "${config_password}" -port "${config_port}" -webBasePath "${config_webBasePath}"
+            echo -e "This is a fresh installation, generating random login info for security concerns:"
+            echo -e "###############################################"
+            echo -e "${green}Username: ${config_username}${plain}"
+            echo -e "${green}Password: ${config_password}${plain}"
+            echo -e "${green}Port: ${config_port}${plain}"
+            echo -e "${green}WebBasePath: ${config_webBasePath}${plain}"
+            echo -e "${green}Access URL: http://${server_ip}:${config_port}/${config_webBasePath}${plain}"
+            echo -e "###############################################"
         else
             local config_webBasePath=$(gen_random_string 15)
             echo -e "${yellow}WebBasePath is missing or too short. Generating a new one...${plain}"
-            if /usr/local/x-ui/x-ui setting -webBasePath "${config_webBasePath}" >/dev/null 2>&1; then
-                echo -e "${green}New WebBasePath: ${config_webBasePath}${plain}"
-                echo -e "${green}Access URL: http://${server_ip}:${existing_port}/${config_webBasePath}${plain}"
-            else
-                echo -e "${red}Error: Failed to set WebBasePath${plain}"
-                return 1
-            fi
+            /usr/local/x-ui/x-ui setting -webBasePath "${config_webBasePath}"
+            echo -e "${green}New WebBasePath: ${config_webBasePath}${plain}"
+            echo -e "${green}Access URL: http://${server_ip}:${existing_port}/${config_webBasePath}${plain}"
         fi
     else
         if [[ "$existing_hasDefaultCredential" == "true" ]]; then
@@ -156,27 +127,18 @@ config_after_install() {
             local config_password=$(gen_random_string 10)
 
             echo -e "${yellow}Default credentials detected. Security update required...${plain}"
-            if /usr/local/x-ui/x-ui setting -username "${config_username}" -password "${config_password}" >/dev/null 2>&1; then
-                echo -e "Generated new random login credentials:"
-                echo -e "###############################################"
-                echo -e "${green}Username: ${config_username}${plain}"
-                echo -e "${green}Password: ${config_password}${plain}"
-                echo -e "###############################################"
-            else
-                echo -e "${red}Error: Failed to update credentials${plain}"
-                return 1
-            fi
+            /usr/local/x-ui/x-ui setting -username "${config_username}" -password "${config_password}"
+            echo -e "Generated new random login credentials:"
+            echo -e "###############################################"
+            echo -e "${green}Username: ${config_username}${plain}"
+            echo -e "${green}Password: ${config_password}${plain}"
+            echo -e "###############################################"
         else
             echo -e "${green}Username, Password, and WebBasePath are properly set. Exiting...${plain}"
         fi
     fi
 
-    # Run migration
-    if /usr/local/x-ui/x-ui migrate >/dev/null 2>&1; then
-        echo -e "${green}Migration completed successfully${plain}"
-    else
-        echo -e "${yellow}Warning: Migration may have failed, but continuing...${plain}"
-    fi
+    /usr/local/x-ui/x-ui migrate
 }
 
 install_x-ui() {
@@ -217,44 +179,52 @@ install_x-ui() {
         systemctl stop x-ui
         rm /usr/local/x-ui/ -rf
     fi
-
+##
     tar zxvf x-ui-linux-$(arch).tar.gz
     rm x-ui-linux-$(arch).tar.gz -f
     
-    # The extracted directory is named x-ui-<arch>, not x-ui
-    EXTRACTED_DIR="x-ui-$(arch)"
-    if [ ! -d "$EXTRACTED_DIR" ]; then
-        echo -e "${red}Error: Expected directory $EXTRACTED_DIR not found after extraction${plain}"
+    # The extracted directory should be named x-ui
+    if [ ! -d "x-ui" ]; then
+        echo -e "${red}Error: Expected directory 'x-ui' not found after extraction${plain}"
+        echo -e "${yellow}Available directories:${plain}"
+        ls -la
         exit 1
     fi
     
-    # Rename the extracted directory to x-ui
-    mv "$EXTRACTED_DIR" x-ui
+    echo -e "${green}Found x-ui directory, proceeding with installation${plain}"
+    
     cd x-ui
     
     # Debug: List contents of the directory
-    echo -e "${blue}Contents of extracted directory:${plain}"
+    echo -e "${blue}Contents of x-ui directory:${plain}"
     ls -la
     
     chmod +x x-ui
 
     # Check the system's architecture and rename the file accordingly
     if [[ $(arch) == "armv5" || $(arch) == "armv6" || $(arch) == "armv7" ]]; then
-        mv bin/xray-linux-$(arch) bin/xray-linux-arm
-        chmod +x bin/xray-linux-arm
+        if [ -f "bin/xray-linux-$(arch)" ]; then
+            mv bin/xray-linux-$(arch) bin/xray-linux-arm
+            chmod +x bin/xray-linux-arm
+        fi
     fi
 
-    chmod +x x-ui bin/xray-linux-$(arch)
-    
-    # Copy service file if it exists
-    if [ -f "x-ui.service" ]; then
-        cp -f x-ui.service /etc/systemd/system/
-        echo -e "${green}Service file copied successfully${plain}"
+    # Make sure xray binary is executable
+    if [ -f "bin/xray-linux-$(arch)" ]; then
+        chmod +x bin/xray-linux-$(arch)
+        echo -e "${green}xray binary found: bin/xray-linux-$(arch)${plain}"
+    elif [ -f "bin/xray-linux-arm" ]; then
+        chmod +x bin/xray-linux-arm
+        echo -e "${green}xray binary found: bin/xray-linux-arm${plain}"
     else
-        echo -e "${red}Error: x-ui.service not found in extracted directory${plain}"
-        return 1
+        echo -e "${red}Error: xray binary not found${plain}"
+        echo -e "${yellow}Available files in bin directory:${plain}"
+        ls -la bin/ || echo "bin directory not found"
+        exit 1
     fi
-    
+
+    chmod +x x-ui
+    cp -f x-ui.service /etc/systemd/system/
     wget -O /usr/bin/x-ui https://raw.githubusercontent.com/azavaxhuman/4x-ui/main/x-ui.sh
     chmod +x /usr/bin/x-ui
     
@@ -266,22 +236,9 @@ install_x-ui() {
     fi
     config_after_install
 
-    # Reload systemd and start the service
     systemctl daemon-reload
-    if systemctl enable x-ui; then
-        echo -e "${green}Service enabled successfully${plain}"
-    else
-        echo -e "${red}Failed to enable x-ui service${plain}"
-        return 1
-    fi
-    
-    if systemctl start x-ui; then
-        echo -e "${green}Service started successfully${plain}"
-    else
-        echo -e "${red}Failed to start x-ui service${plain}"
-        echo -e "${yellow}You can try starting it manually with: systemctl start x-ui${plain}"
-        return 1
-    fi
+    systemctl enable x-ui
+    systemctl start x-ui
     echo -e "${green}x-ui ${tag_version}${plain} installation finished, it is running now..."
     echo -e ""
     echo -e "┌───────────────────────────────────────────────────────┐
