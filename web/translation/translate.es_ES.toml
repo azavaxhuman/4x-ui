@@ -50,6 +50,7 @@
 "fail" = "Falló"
 "comment" = "Comentario"
 "success" = "Éxito"
+"lastOnline" = "Última conexión"
 "getVersion" = "Obtener versión"
 "install" = "Instalar"
 "clients" = "Clientes"
@@ -91,7 +92,7 @@
 "invalidFormData" = "El formato de los datos de entrada es inválido."
 "emptyUsername" = "Por favor ingresa el nombre de usuario."
 "emptyPassword" = "Por favor ingresa la contraseña."
-"wrongUsernameOrPassword" = "Nombre de usuario, contraseña o código de dos factores incorrecto."  
+"wrongUsernameOrPassword" = "Nombre de usuario, contraseña o código de dos factores incorrecto."
 "successLogin" = "Has iniciado sesión en tu cuenta correctamente."
 
 [pages.index]
@@ -117,8 +118,6 @@
 "operationHours" = "Tiempo de Funcionamiento"
 "systemLoad" = "Carga del Sistema"
 "systemLoadDesc" = "promedio de carga del sistema en los últimos 1, 5 y 15 minutos"
-"connectionTcpCountDesc" = "Conexiones TCP totales en todas las tarjetas de red."
-"connectionUdpCountDesc" = "Conexiones UDP totales en todas las tarjetas de red."
 "connectionCount" = "Número de Conexiones"
 "ipAddresses" = "Direcciones IP"
 "toggleIpVisibility" = "Alternar visibilidad de la IP"
@@ -134,6 +133,8 @@
 "xraySwitchVersionPopover" = "Xray se actualizó correctamente"
 "geofileUpdateDialog" = "¿Realmente deseas actualizar el geofichero?"
 "geofileUpdateDialogDesc" = "Esto actualizará el archivo #filename#."
+"geofilesUpdateDialogDesc" = "Esto actualizará todos los archivos."
+"geofilesUpdateAll" = "Actualizar todo"
 "geofileUpdatePopover" = "Geofichero actualizado correctamente"
 "dontRefresh" = "La instalación está en progreso, por favor no actualices esta página."
 "logs" = "Registros"
@@ -151,6 +152,8 @@
 "getConfigError" = "Ocurrió un error al obtener el archivo de configuración"
 
 [pages.inbounds]
+"allTimeTraffic" = "Tráfico Total"
+"allTimeTrafficUsage" = "Uso total de todos los tiempos"
 "title" = "Entradas"
 "totalDownUp" = "Subidas/Descargas Totales"
 "totalUsage" = "Uso Total"
@@ -160,10 +163,13 @@
 "remark" = "Notas"
 "protocol" = "Protocolo"
 "port" = "Puerto"
+"portMap" = "Puertos de Destino"
 "traffic" = "Tráfico"
 "details" = "Detalles"
 "transportConfig" = "Transporte"
 "expireDate" = "Fecha de Expiración"
+"createdAt" = "Creado"
+"updatedAt" = "Actualizado"
 "resetTraffic" = "Restablecer Tráfico"
 "addInbound" = "Agregar Entrada"
 "generalActions" = "Acciones Generales"
@@ -175,8 +181,6 @@
 "deleteClient" = "Eliminar cliente"
 "deleteClientContent" = "¿Está seguro de que desea eliminar el cliente?"
 "resetTrafficContent" = "¿Confirmar restablecimiento de tráfico?"
-"inboundUpdateSuccess" = "La entrada se ha actualizado correctamente."
-"inboundCreateSuccess" = "La entrada se ha creado correctamente."
 "copyLink" = "Copiar Enlace"
 "address" = "Dirección"
 "network" = "Red"
@@ -262,6 +266,8 @@
 "resetInboundClientTrafficSuccess" = "El tráfico ha sido reiniciado"
 "trafficGetError" = "Error al obtener los tráficos"
 "getNewX25519CertError" = "Error al obtener el certificado X25519."
+"getNewmldsa65Error" = "Error al obtener el certificado mldsa65."
+"getNewVlessEncError" = "Error al obtener el certificado VlessEnc."
 
 [pages.inbounds.stream.general]
 "request" = "Pedido"
@@ -535,9 +541,9 @@
 
 [pages.settings.security]
 "admin" = "Credenciales de administrador"
-"twoFactor" = "Autenticación de dos factores"  
-"twoFactorEnable" = "Habilitar 2FA"  
-"twoFactorEnableDesc" = "Añade una capa adicional de autenticación para mayor seguridad."  
+"twoFactor" = "Autenticación de dos factores"
+"twoFactorEnable" = "Habilitar 2FA"
+"twoFactorEnableDesc" = "Añade una capa adicional de autenticación para mayor seguridad."
 "twoFactorModalSetTitle" = "Activar autenticación de dos factores"
 "twoFactorModalDeleteTitle" = "Desactivar autenticación de dos factores"
 "twoFactorModalSteps" = "Para configurar la autenticación de dos factores, sigue estos pasos:"
@@ -561,23 +567,24 @@
 "resetOutboundTrafficError" = "Error al reiniciar el tráfico saliente"
 
 [tgbot]
-"keyboardClosed" = "❌ ¡Teclado personalizado cerrado!"
-"noResult" = "❗ ¡Sin resultados!"
-"noQuery" = "❌ ¡Consulta no encontrada! ¡Por favor utiliza el comando nuevamente!"
+"keyboardClosed" = "❌ Teclado cerrado!"
+"noResult" = "❗ ¡No hay resultados!"
+"noQuery" = "❌ ¡Consulta no encontrada! ¡Por favor, use el comando de nuevo!"
 "wentWrong" = "❌ ¡Algo salió mal!"
-"noIpRecord" = "❗ ¡Sin Registro de IP!"
+"noIpRecord" = "❗ ¡No hay registro de IP!"
 "noInbounds" = "❗ ¡No se encontraron entradas!"
-"unlimited" = "♾ Ilimitado"
-"add" = "Agregar"
+"unlimited" = "♾ Ilimitado (Restablecer)"
+"add" = "Añadir"
 "month" = "Mes"
 "months" = "Meses"
 "day" = "Día"
 "days" = "Días"
 "hours" = "Horas"
+"minutes" = "Minutos"
 "unknown" = "Desconocido"
 "inbounds" = "Entradas"
 "clients" = "Clientes"
-"offline" = "🔴 Sin conexión"
+"offline" = "🔴 Desconectado"
 "online" = "🟢 En línea"
 
 [tgbot.commands]
@@ -646,7 +653,6 @@
 "refreshedOn" = "\r\n📋🔄 Actualizado en: {{ .Time }}\r\n\r\n"
 "yes" = "✅ Sí"
 "no" = "❌ No"
-
 "received_id" = "🔑📥 ID actualizado."
 "received_password" = "🔑📥 Contraseña actualizada."
 "received_email" = "📧📥 Correo electrónico actualizado."
@@ -665,7 +671,6 @@
 "SuccessResetTraffic" = "📧 Correo: {{ .ClientEmail }}\n🏁 Resultado: ✅ Éxito"
 "FailedResetTraffic" = "📧 Correo: {{ .ClientEmail }}\n🏁 Resultado: ❌ Fallido \n\n🛠️ Error: [ {{ .ErrorMessage }} ]"
 "FinishProcess" = "🔚 Proceso de reinicio de tráfico finalizado para todos los clientes."
-
 
 [tgbot.buttons]
 "closeKeyboard" = "❌ Cerrar Teclado"
@@ -700,7 +705,6 @@
 "limitTraffic" = "🚧 Límite de tráfico"
 "getBanLogs" = "Registros de prohibición"
 "allClients" = "Todos los Clientes"
-
 "addClient" = "Añadir cliente"
 "submitDisable" = "Enviar como deshabilitado ☑️"
 "submitEnable" = "Enviar como habilitado ✅"
@@ -711,7 +715,6 @@
 "change_comment" = "⚙️💬 Comentario"
 "ResetAllTraffics" = "Reiniciar todo el tráfico"
 "SortedTrafficUsageReport" = "Informe de uso de tráfico ordenado"
-
 
 [tgbot.answers]
 "successfulOperation" = "✅ ¡Exitosa!"

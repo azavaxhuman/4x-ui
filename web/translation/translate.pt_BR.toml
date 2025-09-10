@@ -50,6 +50,7 @@
 "fail" = "Falhou"
 "comment" = "Comentário"
 "success" = "Com Sucesso"
+"lastOnline" = "Última vez online"
 "getVersion" = "Obter Versão"
 "install" = "Instalar"
 "clients" = "Clientes"
@@ -117,8 +118,6 @@
 "operationHours" = "Tempo de Atividade"
 "systemLoad" = "Carga do Sistema"
 "systemLoadDesc" = "Média de carga do sistema nos últimos 1, 5 e 15 minutos"
-"connectionTcpCountDesc" = "Total de conexões TCP no sistema"
-"connectionUdpCountDesc" = "Total de conexões UDP no sistema"
 "connectionCount" = "Estatísticas de Conexão"
 "ipAddresses" = "Endereços IP"
 "toggleIpVisibility" = "Alternar visibilidade do IP"
@@ -134,6 +133,8 @@
 "xraySwitchVersionPopover" = "Xray atualizado com sucesso"
 "geofileUpdateDialog" = "Você realmente deseja atualizar o geofile?"
 "geofileUpdateDialogDesc" = "Isso atualizará o arquivo #filename#."
+"geofilesUpdateDialogDesc" = "Isso atualizará todos os arquivos."
+"geofilesUpdateAll" = "Atualizar tudo"
 "geofileUpdatePopover" = "Geofile atualizado com sucesso"
 "dontRefresh" = "Instalação em andamento, por favor não atualize a página"
 "logs" = "Logs"
@@ -151,6 +152,8 @@
 "getConfigError" = "Ocorreu um erro ao recuperar o arquivo de configuração"
 
 [pages.inbounds]
+"allTimeTraffic" = "Tráfego Total"
+"allTimeTrafficUsage" = "Uso total de todos os tempos"
 "title" = "Inbounds"
 "totalDownUp" = "Total Enviado/Recebido"
 "totalUsage" = "Uso Total"
@@ -160,10 +163,13 @@
 "remark" = "Observação"
 "protocol" = "Protocolo"
 "port" = "Porta"
+"portMap" = "Porta Mapeada"
 "traffic" = "Tráfego"
 "details" = "Detalhes"
 "transportConfig" = "Transporte"
 "expireDate" = "Duração"
+"createdAt" = "Criado"
+"updatedAt" = "Atualizado"
 "resetTraffic" = "Redefinir Tráfego"
 "addInbound" = "Adicionar Inbound"
 "generalActions" = "Ações Gerais"
@@ -175,8 +181,6 @@
 "deleteClient" = "Excluir Cliente"
 "deleteClientContent" = "Tem certeza de que deseja excluir o cliente?"
 "resetTrafficContent" = "Tem certeza de que deseja redefinir o tráfego?"
-"inboundUpdateSuccess" = "A entrada foi atualizada com sucesso."
-"inboundCreateSuccess" = "A entrada foi criada com sucesso."
 "copyLink" = "Copiar URL"
 "address" = "Endereço"
 "network" = "Rede"
@@ -262,6 +266,8 @@
 "resetInboundClientTrafficSuccess" = "O tráfego foi reiniciado"
 "trafficGetError" = "Erro ao obter tráfegos"
 "getNewX25519CertError" = "Erro ao obter o certificado X25519."
+"getNewmldsa65Error" = "Erro ao obter o certificado mldsa65."
+"getNewVlessEncError" = "Erro ao obter o certificado VlessEnc."
 
 [pages.inbounds.stream.general]
 "request" = "Requisição"
@@ -561,21 +567,22 @@
 "resetOutboundTrafficError" = "Erro ao redefinir tráfego de saída"
 
 [tgbot]
-"keyboardClosed" = "❌ Teclado personalizado fechado!"
+"keyboardClosed" = "❌ Teclado fechado!"
 "noResult" = "❗ Nenhum resultado!"
 "noQuery" = "❌ Consulta não encontrada! Por favor, use o comando novamente!"
 "wentWrong" = "❌ Algo deu errado!"
 "noIpRecord" = "❗ Nenhum registro de IP!"
-"noInbounds" = "❗ Nenhuma entrada encontrada!"
-"unlimited" = "♾ Ilimitado (Reiniciar)"
+"noInbounds" = "❗ Nenhum inbound encontrado!"
+"unlimited" = "♾ Ilimitado (Reset)"
 "add" = "Adicionar"
 "month" = "Mês"
 "months" = "Meses"
 "day" = "Dia"
 "days" = "Dias"
 "hours" = "Horas"
+"minutes" = "Minutos"
 "unknown" = "Desconhecido"
-"inbounds" = "Entradas"
+"inbounds" = "Inbounds"
 "clients" = "Clientes"
 "offline" = "🔴 Offline"
 "online" = "🟢 Online"
@@ -646,7 +653,6 @@
 "refreshedOn" = "\r\n📋🔄 Atualizado em: {{ .Time }}\r\n\r\n"
 "yes" = "✅ Sim"
 "no" = "❌ Não"
-
 "received_id" = "🔑📥 ID atualizado."
 "received_password" = "🔑📥 Senha atualizada."
 "received_email" = "📧📥 E-mail atualizado."
@@ -665,7 +671,6 @@
 "SuccessResetTraffic" = "📧 Email: {{ .ClientEmail }}\n🏁 Resultado: ✅ Sucesso"
 "FailedResetTraffic" = "📧 Email: {{ .ClientEmail }}\n🏁 Resultado: ❌ Falhou \n\n🛠️ Erro: [ {{ .ErrorMessage }} ]"
 "FinishProcess" = "🔚 Processo de redefinição de tráfego concluído para todos os clientes."
-
 
 [tgbot.buttons]
 "closeKeyboard" = "❌ Fechar teclado"
@@ -700,7 +705,6 @@
 "limitTraffic" = "🚧 Limite de tráfego"
 "getBanLogs" = "Obter logs de banimento"
 "allClients" = "Todos os clientes"
-
 "addClient" = "Adicionar Cliente"
 "submitDisable" = "Enviar como Desativado ☑️"
 "submitEnable" = "Enviar como Ativado ✅"
@@ -711,7 +715,6 @@
 "change_comment" = "⚙️💬 Comentário"
 "ResetAllTraffics" = "Redefinir Todo o Tráfego"
 "SortedTrafficUsageReport" = "Relatório de Uso de Tráfego Ordenado"
-
 
 [tgbot.answers]
 "successfulOperation" = "✅ Operação bem-sucedida!"

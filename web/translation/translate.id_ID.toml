@@ -50,6 +50,7 @@
 "fail" = "Gagal"
 "comment" = "Komentar"
 "success" = "Berhasil"
+"lastOnline" = "Terakhir online"
 "getVersion" = "Dapatkan Versi"
 "install" = "Instal"
 "clients" = "Klien"
@@ -117,8 +118,6 @@
 "operationHours" = "Waktu Aktif"
 "systemLoad" = "Beban Sistem"
 "systemLoadDesc" = "Rata-rata beban sistem selama 1, 5, dan 15 menit terakhir"
-"connectionTcpCountDesc" = "Total koneksi TCP di seluruh sistem"
-"connectionUdpCountDesc" = "Total koneksi UDP di seluruh sistem"
 "connectionCount" = "Statistik Koneksi"
 "ipAddresses" = "Alamat IP"
 "toggleIpVisibility" = "Alihkan visibilitas IP"
@@ -134,6 +133,8 @@
 "xraySwitchVersionPopover" = "Xray berhasil diperbarui"
 "geofileUpdateDialog" = "Apakah Anda yakin ingin memperbarui geofile?"
 "geofileUpdateDialogDesc" = "Ini akan memperbarui file #filename#."
+"geofilesUpdateDialogDesc" = "Ini akan memperbarui semua berkas."
+"geofilesUpdateAll" = "Perbarui semua"
 "geofileUpdatePopover" = "Geofile berhasil diperbarui"
 "dontRefresh" = "Instalasi sedang berlangsung, harap jangan menyegarkan halaman ini"
 "logs" = "Log"
@@ -151,6 +152,8 @@
 "getConfigError" = "Terjadi kesalahan saat mengambil file konfigurasi"
 
 [pages.inbounds]
+"allTimeTraffic" = "Total Lalu Lintas"
+"allTimeTrafficUsage" = "Total Penggunaan Sepanjang Waktu"
 "title" = "Masuk"
 "totalDownUp" = "Total Terkirim/Diterima"
 "totalUsage" = "Penggunaan Total"
@@ -160,10 +163,13 @@
 "remark" = "Catatan"
 "protocol" = "Protokol"
 "port" = "Port"
+"portMap" = "Port Mapping"
 "traffic" = "Traffic"
 "details" = "Rincian"
 "transportConfig" = "Transport"
 "expireDate" = "Durasi"
+"createdAt" = "Dibuat"
+"updatedAt" = "Diperbarui"
 "resetTraffic" = "Reset Traffic"
 "addInbound" = "Tambahkan Masuk"
 "generalActions" = "Tindakan Umum"
@@ -175,8 +181,6 @@
 "deleteClient" = "Hapus Klien"
 "deleteClientContent" = "Apakah Anda yakin ingin menghapus klien?"
 "resetTrafficContent" = "Apakah Anda yakin ingin mereset traffic?"
-"inboundUpdateSuccess" = "Inbound berhasil diperbarui."
-"inboundCreateSuccess" = "Inbound berhasil dibuat."
 "copyLink" = "Salin URL"
 "address" = "Alamat"
 "network" = "Jaringan"
@@ -262,6 +266,8 @@
 "resetInboundClientTrafficSuccess" = "Lalu lintas telah direset"
 "trafficGetError" = "Gagal mendapatkan data lalu lintas"
 "getNewX25519CertError" = "Terjadi kesalahan saat mendapatkan sertifikat X25519."
+"getNewmldsa65Error" = "Terjadi kesalahan saat mendapatkan sertifikat mldsa65."
+"getNewVlessEncError" = "Terjadi kesalahan saat mendapatkan sertifikat VlessEnc."
 
 [pages.inbounds.stream.general]
 "request" = "Permintaan"
@@ -421,7 +427,6 @@
 "RoutingStrategy" = "Strategi Pengalihan Keseluruhan"
 "RoutingStrategyDesc" = "Atur strategi pengalihan lalu lintas keseluruhan untuk menyelesaikan semua permintaan."
 "Torrent" = "Blokir Protokol BitTorrent"
-"TorrentDesc" = "Memblokir protokol BitTorrent."
 "Inbounds" = "Masuk"
 "InboundsDesc" = "Menerima klien tertentu."
 "Outbounds" = "Keluar"
@@ -562,21 +567,22 @@
 "resetOutboundTrafficError" = "Gagal mereset lalu lintas keluar"
 
 [tgbot]
-"keyboardClosed" = "❌ Papan ketik kustom ditutup!"
+"keyboardClosed" = "❌ Keyboard ditutup!"
 "noResult" = "❗ Tidak ada hasil!"
-"noQuery" = "❌ Permintaan tidak ditemukan! Harap gunakan perintah lagi!"
-"wentWrong" = "❌ Ada yang salah!"
+"noQuery" = "❌ Kueri tidak ditemukan! Silakan gunakan perintah lagi!"
+"wentWrong" = "❌ Terjadi kesalahan!"
 "noIpRecord" = "❗ Tidak ada Catatan IP!"
-"noInbounds" = "❗ Tidak ada masuk ditemukan!"
-"unlimited" = "♾ Tak terbatas"
+"noInbounds" = "❗ Tidak ada inbound yang ditemukan!"
+"unlimited" = "♾ Tidak terbatas (Reset)"
 "add" = "Tambah"
 "month" = "Bulan"
 "months" = "Bulan"
 "day" = "Hari"
 "days" = "Hari"
 "hours" = "Jam"
+"minutes" = "Menit"
 "unknown" = "Tidak diketahui"
-"inbounds" = "Masuk"
+"inbounds" = "Inbound"
 "clients" = "Klien"
 "offline" = "🔴 Offline"
 "online" = "🟢 Online"
@@ -647,7 +653,6 @@
 "refreshedOn" = "\r\n📋🔄 Diperbarui Pada: {{ .Time }}\r\n\r\n"
 "yes" = "✅ Ya"
 "no" = "❌ Tidak"
-
 "received_id" = "🔑📥 ID diperbarui."
 "received_password" = "🔑📥 Kata sandi diperbarui."
 "received_email" = "📧📥 Email diperbarui."
@@ -666,7 +671,6 @@
 "SuccessResetTraffic" = "📧 Email: {{ .ClientEmail }}\n🏁 Hasil: ✅ Berhasil"
 "FailedResetTraffic" = "📧 Email: {{ .ClientEmail }}\n🏁 Hasil: ❌ Gagal \n\n🛠️ Kesalahan: [ {{ .ErrorMessage }} ]"
 "FinishProcess" = "🔚 Proses reset traffic selesai untuk semua klien."
-
 
 [tgbot.buttons]
 "closeKeyboard" = "❌ Tutup Papan Ketik"
@@ -701,7 +705,6 @@
 "limitTraffic" = "🚧 Batas Lalu Lintas"
 "getBanLogs" = "Dapatkan Log Pemblokiran"
 "allClients" = "Semua Klien"
-
 "addClient" = "Tambah Klien"
 "submitDisable" = "Kirim Sebagai Nonaktif ☑️"
 "submitEnable" = "Kirim Sebagai Aktif ✅"
@@ -712,7 +715,6 @@
 "change_comment" = "⚙️💬 Komentar"
 "ResetAllTraffics" = "Reset Semua Lalu Lintas"
 "SortedTrafficUsageReport" = "Laporan Penggunaan Lalu Lintas yang Terurut"
-
 
 [tgbot.answers]
 "successfulOperation" = "✅ Operasi berhasil!"

@@ -2,6 +2,7 @@ package service
 
 import (
 	"archive/zip"
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -23,6 +24,7 @@ import (
 	"x-ui/util/sys"
 	"x-ui/xray"
 
+	"github.com/google/uuid"
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"
 	"github.com/shirou/gopsutil/v4/host"
@@ -234,21 +236,42 @@ func (s *ServerService) GetStatus(lastStatus *Status) *Status {
 	}
 
 	// IP fetching with caching
+	showIp4ServiceLists := []string{
+		"https://api4.ipify.org",
+		"https://ipv4.icanhazip.com",
+		"https://v4.api.ipinfo.io/ip",
+		"https://ipv4.myexternalip.com/raw",
+		"https://4.ident.me",
+		"https://check-host.net/ip",
+	}
+	showIp6ServiceLists := []string{
+		"https://api6.ipify.org",
+		"https://ipv6.icanhazip.com",
+		"https://v6.api.ipinfo.io/ip",
+		"https://ipv6.myexternalip.com/raw",
+		"https://6.ident.me",
+	}
+
 	if s.cachedIPv4 == "" {
-		s.cachedIPv4 = getPublicIP("https://api.ipify.org")
-		if s.cachedIPv4 == "N/A" {
-			s.cachedIPv4 = getPublicIP("https://4.ident.me")
+		for _, ip4Service := range showIp4ServiceLists {
+			s.cachedIPv4 = getPublicIP(ip4Service)
+			if s.cachedIPv4 != "N/A" {
+				break
+			}
 		}
 	}
 
 	if s.cachedIPv6 == "" && !s.noIPv6 {
-		s.cachedIPv6 = getPublicIP("https://api6.ipify.org")
-		if s.cachedIPv6 == "N/A" {
-			s.cachedIPv6 = getPublicIP("https://6.ident.me")
-			if s.cachedIPv6 == "N/A" {
-				s.noIPv6 = true
+		for _, ip6Service := range showIp6ServiceLists {
+			s.cachedIPv6 = getPublicIP(ip6Service)
+			if s.cachedIPv6 != "N/A" {
+				break
 			}
 		}
+	}
+
+	if s.cachedIPv6 == "N/A" {
+		s.noIPv6 = true
 	}
 
 	status.PublicIP.IPv4 = s.cachedIPv4
@@ -321,7 +344,7 @@ func (s *ServerService) GetXrayVersions() ([]string, error) {
 			continue
 		}
 
-		if major > 25 || (major == 25 && minor > 6) || (major == 25 && minor == 6 && patch >= 8) {
+		if major > 25 || (major == 25 && minor > 9) || (major == 25 && minor == 9 && patch >= 11) {
 			versions = append(versions, release.TagName)
 		}
 	}
@@ -338,7 +361,6 @@ func (s *ServerService) StopXrayService() error {
 }
 
 func (s *ServerService) RestartXrayService() error {
-	s.xrayService.StopXray()
 	err := s.xrayService.RestartXray(true)
 	if err != nil {
 		logger.Error("start xray failed:", err)
@@ -471,6 +493,81 @@ func (s *ServerService) GetLogs(count string, level string, syslog string) []str
 	}
 
 	return lines
+}
+
+func (s *ServerService) GetXrayLogs(
+	count string,
+	filter string,
+	showDirect string,
+	showBlocked string,
+	showProxy string,
+	freedoms []string,
+	blackholes []string) []string {
+
+	countInt, _ := strconv.Atoi(count)
+	var lines []string
+
+	pathToAccessLog, err := xray.GetAccessLogPath()
+	if err != nil {
+		return lines
+	}
+
+	file, err := os.Open(pathToAccessLog)
+	if err != nil {
+		return lines
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+
+		if line == "" || strings.Contains(line, "api -> api") {
+			//skipping empty lines and api calls
+			continue
+		}
+
+		if filter != "" && !strings.Contains(line, filter) {
+			//applying filter if it's not empty
+			continue
+		}
+
+		//adding suffixes to further distinguish entries by outbound
+		if hasSuffix(line, freedoms) {
+			if showDirect == "false" {
+				continue
+			}
+			line = line + " f"
+		} else if hasSuffix(line, blackholes) {
+			if showBlocked == "false" {
+				continue
+			}
+			line = line + " b"
+		} else {
+			if showProxy == "false" {
+				continue
+			}
+			line = line + " p"
+		}
+
+		lines = append(lines, line)
+	}
+
+	if len(lines) > countInt {
+		lines = lines[len(lines)-countInt:]
+	}
+
+	return lines
+}
+
+func hasSuffix(line string, suffixes []string) bool {
+	for _, sfx := range suffixes {
+		if strings.HasSuffix(line, sfx+"]") {
+			return true
+		}
+	}
+	return false
 }
 
 func (s *ServerService) GetConfigJson() (any, error) {
@@ -658,27 +755,43 @@ func (s *ServerService) UpdateGeofile(fileName string) error {
 		return nil
 	}
 
-	var fileURL string
-	for _, file := range files {
-		if file.FileName == fileName {
-			fileURL = file.URL
-			break
+	var errorMessages []string
+
+	if fileName == "" {
+		for _, file := range files {
+			destPath := fmt.Sprintf("%s/%s", config.GetBinFolderPath(), file.FileName)
+
+			if err := downloadFile(file.URL, destPath); err != nil {
+				errorMessages = append(errorMessages, fmt.Sprintf("Error downloading Geofile '%s': %v", file.FileName, err))
+			}
 		}
-	}
+	} else {
+		destPath := fmt.Sprintf("%s/%s", config.GetBinFolderPath(), fileName)
 
-	if fileURL == "" {
-		return common.NewErrorf("File '%s' not found in the list of Geofiles", fileName)
-	}
+		var fileURL string
+		for _, file := range files {
+			if file.FileName == fileName {
+				fileURL = file.URL
+				break
+			}
+		}
 
-	destPath := fmt.Sprintf("%s/%s", config.GetBinFolderPath(), fileName)
+		if fileURL == "" {
+			errorMessages = append(errorMessages, fmt.Sprintf("File '%s' not found in the list of Geofiles", fileName))
+		}
 
-	if err := downloadFile(fileURL, destPath); err != nil {
-		return common.NewErrorf("Error downloading Geofile '%s': %v", fileName, err)
+		if err := downloadFile(fileURL, destPath); err != nil {
+			errorMessages = append(errorMessages, fmt.Sprintf("Error downloading Geofile '%s': %v", fileName, err))
+		}
 	}
 
 	err := s.RestartXrayService()
 	if err != nil {
-		return common.NewErrorf("Updated Geofile '%s' but Failed to start Xray: %v", fileName, err)
+		errorMessages = append(errorMessages, fmt.Sprintf("Updated Geofile '%s' but Failed to start Xray: %v", fileName, err))
+	}
+
+	if len(errorMessages) > 0 {
+		return common.NewErrorf("%s", strings.Join(errorMessages, "\r\n"))
 	}
 
 	return nil
@@ -705,6 +818,133 @@ func (s *ServerService) GetNewX25519Cert() (any, error) {
 	keyPair := map[string]any{
 		"privateKey": privateKey,
 		"publicKey":  publicKey,
+	}
+
+	return keyPair, nil
+}
+
+func (s *ServerService) GetNewmldsa65() (any, error) {
+	// Run the command
+	cmd := exec.Command(xray.GetBinaryPath(), "mldsa65")
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+		return nil, err
+	}
+
+	lines := strings.Split(out.String(), "\n")
+
+	SeedLine := strings.Split(lines[0], ":")
+	VerifyLine := strings.Split(lines[1], ":")
+
+	seed := strings.TrimSpace(SeedLine[1])
+	verify := strings.TrimSpace(VerifyLine[1])
+
+	keyPair := map[string]any{
+		"seed":   seed,
+		"verify": verify,
+	}
+
+	return keyPair, nil
+}
+
+func (s *ServerService) GetNewEchCert(sni string) (interface{}, error) {
+	// Run the command
+	cmd := exec.Command(xray.GetBinaryPath(), "tls", "ech", "--serverName", sni)
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+		return nil, err
+	}
+
+	lines := strings.Split(out.String(), "\n")
+	if len(lines) < 4 {
+		return nil, common.NewError("invalid ech cert")
+	}
+
+	configList := lines[1]
+	serverKeys := lines[3]
+
+	return map[string]interface{}{
+		"echServerKeys": serverKeys,
+		"echConfigList": configList,
+	}, nil
+}
+
+func (s *ServerService) GetNewVlessEnc() (any, error) {
+	cmd := exec.Command(xray.GetBinaryPath(), "vlessenc")
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	if err := cmd.Run(); err != nil {
+		return nil, err
+	}
+
+	lines := strings.Split(out.String(), "\n")
+	var auths []map[string]string
+	var current map[string]string
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "Authentication:") {
+			if current != nil {
+				auths = append(auths, current)
+			}
+			current = map[string]string{
+				"label": strings.TrimSpace(strings.TrimPrefix(line, "Authentication:")),
+			}
+		} else if strings.HasPrefix(line, `"decryption"`) || strings.HasPrefix(line, `"encryption"`) {
+			parts := strings.SplitN(line, ":", 2)
+			if len(parts) == 2 && current != nil {
+				key := strings.Trim(parts[0], `" `)
+				val := strings.Trim(parts[1], `" `)
+				current[key] = val
+			}
+		}
+	}
+
+	if current != nil {
+		auths = append(auths, current)
+	}
+
+	return map[string]any{
+		"auths": auths,
+	}, nil
+}
+
+func (s *ServerService) GetNewUUID() (map[string]string, error) {
+	newUUID, err := uuid.NewRandom()
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate UUID: %w", err)
+	}
+
+	return map[string]string{
+		"uuid": newUUID.String(),
+	}, nil
+}
+
+func (s *ServerService) GetNewmlkem768() (any, error) {
+	// Run the command
+	cmd := exec.Command(xray.GetBinaryPath(), "mlkem768")
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+		return nil, err
+	}
+
+	lines := strings.Split(out.String(), "\n")
+
+	SeedLine := strings.Split(lines[0], ":")
+	ClientLine := strings.Split(lines[1], ":")
+
+	seed := strings.TrimSpace(SeedLine[1])
+	client := strings.TrimSpace(ClientLine[1])
+
+	keyPair := map[string]any{
+		"seed":   seed,
+		"client": client,
 	}
 
 	return keyPair, nil

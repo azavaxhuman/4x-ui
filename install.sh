@@ -39,19 +39,6 @@ arch() {
 
 echo "Arch: $(arch)"
 
-check_glibc_version() {
-    glibc_version=$(ldd --version | head -n1 | awk '{print $NF}')
-    
-    required_version="2.32"
-    if [[ "$(printf '%s\n' "$required_version" "$glibc_version" | sort -V | head -n1)" != "$required_version" ]]; then
-        echo -e "${red}GLIBC version $glibc_version is too old! Required: 2.32 or higher${plain}"
-        echo "Please upgrade to a newer version of your operating system to get a higher GLIBC version."
-        exit 1
-    fi
-    echo "GLIBC version: $glibc_version (meets requirement of 2.32+)"
-}
-check_glibc_version
-
 install_base() {
     case "${release}" in
     ubuntu | debian | armbian)
@@ -70,7 +57,7 @@ install_base() {
         zypper refresh && zypper -q install -y wget curl tar timezone
         ;;
     *)
-        apt-get update && apt install -y -q wget curl tar tzdata
+        apt-get update && apt-get install -y -q wget curl tar tzdata
         ;;
     esac
 }
@@ -85,10 +72,21 @@ config_after_install() {
     local existing_hasDefaultCredential=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'hasDefaultCredential: .+' | awk '{print $2}')
     local existing_webBasePath=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'webBasePath: .+' | awk '{print $2}')
     local existing_port=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'port: .+' | awk '{print $2}')
-    local server_ip=$(curl -s --max-time 3 https://api.ipify.org)
-    if [ -z "$server_ip" ]; then
-        server_ip=$(curl -s --max-time 3 https://4.ident.me)
-    fi
+    local URL_lists=(
+        "https://api4.ipify.org"
+		"https://ipv4.icanhazip.com"
+		"https://v4.api.ipinfo.io/ip"
+		"https://ipv4.myexternalip.com/raw"
+		"https://4.ident.me"
+		"https://check-host.net/ip"
+    )
+    local server_ip=""
+    for ip_address in "${URL_lists[@]}"; do
+        server_ip=$(curl -s --max-time 3 "${ip_address}" 2>/dev/null | tr -d '[:space:]')
+        if [[ -n "${server_ip}" ]]; then
+            break
+        fi
+    done
 
     if [[ ${#existing_webBasePath} -lt 4 ]]; then
         if [[ "$existing_hasDefaultCredential" == "true" ]]; then
@@ -144,6 +142,7 @@ config_after_install() {
 install_x-ui() {
     cd /usr/local/
 
+    # Download resources
     if [ $# == 0 ]; then
         tag_version=$(curl -Ls "https://api.github.com/repos/MHSanaei/3x-ui/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
         if [[ ! -n "$tag_version" ]]; then
@@ -174,30 +173,35 @@ install_x-ui() {
             exit 1
         fi
     fi
+    wget -O /usr/bin/x-ui-temp https://raw.githubusercontent.com/MHSanaei/3x-ui/main/x-ui.sh
 
+    # Stop x-ui service and remove old resources
     if [[ -e /usr/local/x-ui/ ]]; then
         systemctl stop x-ui
         rm /usr/local/x-ui/ -rf
     fi
 
+    # Extract resources and set permissions
     tar zxvf x-ui-linux-$(arch).tar.gz
     rm x-ui-linux-$(arch).tar.gz -f
+    
     cd x-ui
     chmod +x x-ui
+    chmod +x x-ui.sh
 
     # Check the system's architecture and rename the file accordingly
     if [[ $(arch) == "armv5" || $(arch) == "armv6" || $(arch) == "armv7" ]]; then
         mv bin/xray-linux-$(arch) bin/xray-linux-arm
         chmod +x bin/xray-linux-arm
     fi
-
     chmod +x x-ui bin/xray-linux-$(arch)
-    cp -f x-ui.service /etc/systemd/system/
-    wget -O /usr/bin/x-ui https://raw.githubusercontent.com/MHSanaei/3x-ui/main/x-ui.sh
-    chmod +x /usr/local/x-ui/x-ui.sh
+
+    # Update x-ui cli and se set permission
+    mv -f /usr/bin/x-ui-temp /usr/bin/x-ui
     chmod +x /usr/bin/x-ui
     config_after_install
 
+    cp -f x-ui.service /etc/systemd/system/
     systemctl daemon-reload
     systemctl enable x-ui
     systemctl start x-ui

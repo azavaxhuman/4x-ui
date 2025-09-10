@@ -50,6 +50,7 @@
 "fail" = "失敗"
 "comment" = "コメント"
 "success" = "成功"
+"lastOnline" = "最終オンライン"
 "getVersion" = "バージョン取得"
 "install" = "インストール"
 "clients" = "クライアント"
@@ -117,8 +118,6 @@
 "operationHours" = "システム稼働時間"
 "systemLoad" = "システム負荷"
 "systemLoadDesc" = "過去1、5、15分間のシステム平均負荷"
-"connectionTcpCountDesc" = "システム内のすべてのTCP接続数"
-"connectionUdpCountDesc" = "システム内のすべてのUDP接続数"
 "connectionCount" = "接続数"
 "ipAddresses" = "IPアドレス"
 "toggleIpVisibility" = "IPの表示を切り替える"
@@ -134,6 +133,8 @@
 "xraySwitchVersionPopover" = "Xrayの更新が成功しました"
 "geofileUpdateDialog" = "ジオファイルを本当に更新しますか？"
 "geofileUpdateDialogDesc" = "これにより#filename#ファイルが更新されます。"
+"geofilesUpdateDialogDesc" = "これにより、すべてのファイルが更新されます。"
+"geofilesUpdateAll" = "すべて更新"
 "geofileUpdatePopover" = "ジオファイルの更新が成功しました"
 "dontRefresh" = "インストール中、このページをリロードしないでください"
 "logs" = "ログ"
@@ -151,6 +152,8 @@
 "getConfigError" = "設定ファイルの取得中にエラーが発生しました"
 
 [pages.inbounds]
+"allTimeTraffic" = "総トラフィック"
+"allTimeTrafficUsage" = "これまでの総使用量"
 "title" = "インバウンド一覧"
 "totalDownUp" = "総アップロード / ダウンロード"
 "totalUsage" = "総使用量"
@@ -160,10 +163,13 @@
 "remark" = "備考"
 "protocol" = "プロトコル"
 "port" = "ポート"
+"portMap" = "ポートマッピング"
 "traffic" = "トラフィック"
 "details" = "詳細情報"
 "transportConfig" = "トランスポート設定"
 "expireDate" = "有効期限"
+"createdAt" = "作成"
+"updatedAt" = "更新"
 "resetTraffic" = "トラフィックリセット"
 "addInbound" = "インバウンド追加"
 "generalActions" = "一般操作"
@@ -175,8 +181,6 @@
 "deleteClient" = "クライアント削除"
 "deleteClientContent" = "クライアントを削除してもよろしいですか？"
 "resetTrafficContent" = "トラフィックをリセットしてもよろしいですか？"
-"inboundUpdateSuccess" = "インバウンドが正常に更新されました。"
-"inboundCreateSuccess" = "インバウンドが正常に作成されました。"
 "copyLink" = "リンクをコピー"
 "address" = "アドレス"
 "network" = "ネットワーク"
@@ -262,6 +266,8 @@
 "resetInboundClientTrafficSuccess" = "トラフィックがリセットされました"
 "trafficGetError" = "トラフィックの取得中にエラーが発生しました"
 "getNewX25519CertError" = "X25519証明書の取得中にエラーが発生しました。"
+"getNewmldsa65Error" = "mldsa65証明書の取得中にエラーが発生しました。"
+"getNewVlessEncError" = "VlessEnc証明書の取得中にエラーが発生しました。"
 
 [pages.inbounds.stream.general]
 "request" = "リクエスト"
@@ -561,21 +567,22 @@
 "resetOutboundTrafficError" = "送信トラフィックのリセットエラー"
 
 [tgbot]
-"keyboardClosed" = "❌ カスタムキーボードが閉じられました！"
+"keyboardClosed" = "❌ キーボードを閉じました！"
 "noResult" = "❗ 結果がありません！"
-"noQuery" = "❌ クエリが見つかりませんでした！もう一度コマンドを使用してください！"
-"wentWrong" = "❌ 問題が発生しました！"
-"noIpRecord" = "❗ IP記録がありません！"
-"noInbounds" = "❗ インバウンド接続が見つかりません！"
-"unlimited" = "♾ 無制限"
+"noQuery" = "❌ クエリが見つかりません！コマンドを再利用してください！"
+"wentWrong" = "❌ 何かがうまくいかなかった！"
+"noIpRecord" = "❗ IPレコードがありません！"
+"noInbounds" = "❗ インバウンドが見つかりません！"
+"unlimited" = "♾ 無制限（リセット）"
 "add" = "追加"
 "month" = "月"
-"months" = "月"
+"months" = "ヶ月"
 "day" = "日"
-"days" = "日"
+"days" = "日間"
 "hours" = "時間"
+"minutes" = "分"
 "unknown" = "不明"
-"inbounds" = "インバウンド接続"
+"inbounds" = "インバウンド"
 "clients" = "クライアント"
 "offline" = "🔴 オフライン"
 "online" = "🟢 オンライン"
@@ -646,7 +653,6 @@
 "refreshedOn" = "\r\n📋🔄 更新時間：{{ .Time }}\r\n\r\n"
 "yes" = "✅ はい"
 "no" = "❌ いいえ"
-
 "received_id" = "🔑📥 IDが更新されました。"
 "received_password" = "🔑📥 パスワードが更新されました。"
 "received_email" = "📧📥 メールが更新されました。"
@@ -665,7 +671,6 @@
 "SuccessResetTraffic" = "📧 メール: {{ .ClientEmail }}\n🏁 結果: ✅ 成功"
 "FailedResetTraffic" = "📧 メール: {{ .ClientEmail }}\n🏁 結果: ❌ 失敗 \n\n🛠️ エラー: [ {{ .ErrorMessage }} ]"
 "FinishProcess" = "🔚 すべてのクライアントのトラフィックリセットが完了しました。"
-
 
 [tgbot.buttons]
 "closeKeyboard" = "❌ キーボードを閉じる"
@@ -700,7 +705,6 @@
 "limitTraffic" = "🚧 トラフィック制限"
 "getBanLogs" = "禁止ログ"
 "allClients" = "すべてのクライアント"
-
 "addClient" = "クライアントを追加"
 "submitDisable" = "無効として送信 ☑️"
 "submitEnable" = "有効として送信 ✅"
@@ -711,7 +715,6 @@
 "change_comment" = "⚙️💬 コメント"
 "ResetAllTraffics" = "すべてのトラフィックをリセット"
 "SortedTrafficUsageReport" = "ソートされたトラフィック使用レポート"
-
 
 [tgbot.answers]
 "successfulOperation" = "✅ 成功！"

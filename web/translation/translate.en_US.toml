@@ -50,6 +50,7 @@
 "fail" = "Failed"
 "comment" = "Comment"
 "success" = "Successfully"
+"lastOnline" = "Last Online"
 "getVersion" = "Get Version"
 "install" = "Install"
 "clients" = "Clients"
@@ -132,6 +133,8 @@
 "xraySwitchVersionPopover" = "Xray updated successfully"
 "geofileUpdateDialog" = "Do you really want to update the geofile?"
 "geofileUpdateDialogDesc" = "This will update the #filename# file."
+"geofilesUpdateDialogDesc" = "This will update all geofiles."
+"geofilesUpdateAll" = "Update all"
 "geofileUpdatePopover" = "Geofile updated successfully"
 "dontRefresh" = "Installation is in progress, please do not refresh this page"
 "logs" = "Logs"
@@ -149,6 +152,8 @@
 "getConfigError" = "An error occurred while retrieving the config file."
 
 [pages.inbounds]
+"allTimeTraffic" = "All-time Traffic"
+"allTimeTrafficUsage" = "All Time Total Usage"
 "title" = "Inbounds"
 "totalDownUp" = "Total Sent/Received"
 "totalUsage" = "Total Usage"
@@ -158,10 +163,13 @@
 "remark" = "Remark"
 "protocol" = "Protocol"
 "port" = "Port"
+"portMap" = "Port Mapping"
 "traffic" = "Traffic"
 "details" = "Details"
 "transportConfig" = "Transport"
 "expireDate" = "Duration"
+"createdAt" = "Created"
+"updatedAt" = "Updated"
 "resetTraffic" = "Reset Traffic"
 "addInbound" = "Add Inbound"
 "generalActions" = "General Actions"
@@ -258,7 +266,8 @@
 "resetInboundClientTrafficSuccess" = "Traffic has been reset."
 "trafficGetError" = "Error getting traffics."
 "getNewX25519CertError" = "Error while obtaining the X25519 certificate."
-
+"getNewmldsa65Error" = "Error while obtaining mldsa65."
+"getNewVlessEncError" = "Error while obtaining VlessEnc."
 
 [pages.inbounds.stream.general]
 "request" = "Request"
@@ -571,6 +580,7 @@
 "day" = "Day"
 "days" = "Days"
 "hours" = "Hours"
+"minutes" = "Minutes"
 "unknown" = "Unknown"
 "inbounds" = "Inbounds"
 "clients" = "Clients"
@@ -643,7 +653,6 @@
 "refreshedOn" = "\r\n📋🔄 Refreshed On: {{ .Time }}\r\n\r\n"
 "yes" = "✅ Yes"
 "no" = "❌ No"
-
 "received_id" = "🔑📥 ID updated."
 "received_password" = "🔑📥 Password updated."
 "received_email" = "📧📥 Email updated."
@@ -662,7 +671,6 @@
 "SuccessResetTraffic" = "📧 Email: {{ .ClientEmail }}\n🏁 Result: ✅ Success"
 "FailedResetTraffic" = "📧 Email: {{ .ClientEmail }}\n🏁 Result: ❌ Failed \n\n🛠️ Error: [ {{ .ErrorMessage }} ]"
 "FinishProcess" = "🔚 Traffic reset process finished for all clients."
-
 
 [tgbot.buttons]
 "closeKeyboard" = "❌ Close Keyboard"
@@ -697,7 +705,6 @@
 "limitTraffic" = "🚧 Traffic Limit"
 "getBanLogs" = "Get Ban Logs"
 "allClients" = "All Clients"
-
 "addClient" = "Add Client"
 "submitDisable" = "Submit As Disable ☑️"
 "submitEnable" = "Submit As Enable ✅"
